@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/avl_tree.dir/link.d CMakeFiles/avl_tree.dir/src/tree.cpp.o -o avl_tree

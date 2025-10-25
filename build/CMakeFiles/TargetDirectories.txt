@@ -1,0 +1,3 @@
+/home/kirill/Side-Projects/Vlados/Trees/build/CMakeFiles/avl_tree.dir
+/home/kirill/Side-Projects/Vlados/Trees/build/CMakeFiles/edit_cache.dir
+/home/kirill/Side-Projects/Vlados/Trees/build/CMakeFiles/rebuild_cache.dir
