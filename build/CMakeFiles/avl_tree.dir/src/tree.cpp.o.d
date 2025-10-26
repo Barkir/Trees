@@ -153,16 +153,49 @@ CMakeFiles/avl_tree.dir/src/tree.cpp.o: \
  /usr/include/c++/15/bits/stl_bvector.h \
  /usr/include/c++/15/bits/vector.tcc /usr/include/c++/15/array \
  /home/kirill/Side-Projects/Vlados/Trees/include/tree.hpp \
+ /usr/include/c++/15/fstream /usr/include/c++/15/bits/codecvt.h \
+ /usr/include/c++/15/x86_64-redhat-linux/bits/basic_file.h \
+ /usr/include/c++/15/x86_64-redhat-linux/bits/c++io.h \
+ /usr/include/c++/15/bits/fstream.tcc /usr/include/c++/15/memory \
+ /usr/include/c++/15/bits/stl_tempbuf.h \
+ /usr/include/c++/15/bits/stl_raw_storage_iter.h \
+ /usr/include/c++/15/bits/align.h /usr/include/c++/15/bits/unique_ptr.h \
+ /usr/include/c++/15/bits/shared_ptr.h \
+ /usr/include/c++/15/bits/shared_ptr_base.h \
+ /usr/include/c++/15/bits/allocated_ptr.h \
+ /usr/include/c++/15/ext/concurrence.h \
+ /usr/include/c++/15/bits/shared_ptr_atomic.h \
+ /usr/include/c++/15/bits/atomic_base.h \
+ /usr/include/c++/15/bits/atomic_lockfree_defines.h \
+ /usr/include/c++/15/bits/atomic_wait.h /usr/include/c++/15/cstdint \
+ /usr/lib/gcc/x86_64-redhat-linux/15/include/stdint.h \
+ /usr/include/stdint.h /usr/include/bits/stdint-uintn.h \
+ /usr/include/bits/stdint-least.h /usr/include/c++/15/climits \
+ /usr/lib/gcc/x86_64-redhat-linux/15/include/limits.h \
+ /usr/lib/gcc/x86_64-redhat-linux/15/include/syslimits.h \
+ /usr/include/limits.h /usr/include/bits/posix1_lim.h \
+ /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
+ /usr/include/bits/posix2_lim.h /usr/include/bits/xopen_lim.h \
+ /usr/include/bits/uio_lim.h /usr/include/unistd.h \
+ /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
+ /usr/include/bits/confname.h /usr/include/bits/getopt_posix.h \
+ /usr/include/bits/getopt_core.h /usr/include/bits/unistd_ext.h \
+ /usr/include/linux/close_range.h /usr/include/syscall.h \
+ /usr/include/sys/syscall.h /usr/include/asm/unistd.h \
+ /usr/include/asm/unistd_64.h /usr/include/bits/syscall.h \
+ /usr/include/c++/15/bits/std_mutex.h \
+ /usr/include/c++/15/backward/auto_ptr.h \
+ /usr/include/c++/15/bits/ranges_uninitialized.h \
+ /usr/include/c++/15/bits/ranges_algobase.h \
+ /usr/include/c++/15/pstl/glue_memory_defs.h \
+ /usr/include/c++/15/pstl/execution_defs.h \
  /home/kirill/Side-Projects/Vlados/Trees/include/CLI11.hpp \
  /usr/include/c++/15/algorithm /usr/include/c++/15/bits/stl_algo.h \
  /usr/include/c++/15/bits/algorithmfwd.h \
  /usr/include/c++/15/bits/stl_heap.h \
  /usr/include/c++/15/bits/uniform_int_dist.h \
- /usr/include/c++/15/bits/stl_tempbuf.h \
  /usr/include/c++/15/bits/ranges_algo.h \
- /usr/include/c++/15/bits/ranges_algobase.h \
- /usr/include/c++/15/pstl/glue_algorithm_defs.h \
- /usr/include/c++/15/pstl/execution_defs.h /usr/include/c++/15/cmath \
+ /usr/include/c++/15/pstl/glue_algorithm_defs.h /usr/include/c++/15/cmath \
  /usr/include/math.h /usr/include/bits/math-vector.h \
  /usr/include/bits/libm-simd-decl-stubs.h \
  /usr/include/bits/flt-eval-method.h /usr/include/bits/fp-logb.h \
@@ -181,15 +214,8 @@ CMakeFiles/avl_tree.dir/src/tree.cpp.o: \
  /usr/include/c++/15/tr1/modified_bessel_func.tcc \
  /usr/include/c++/15/tr1/poly_hermite.tcc \
  /usr/include/c++/15/tr1/poly_laguerre.tcc \
- /usr/include/c++/15/tr1/riemann_zeta.tcc /usr/include/c++/15/cstdint \
- /usr/lib/gcc/x86_64-redhat-linux/15/include/stdint.h \
- /usr/include/stdint.h /usr/include/bits/stdint-uintn.h \
- /usr/include/bits/stdint-least.h /usr/include/c++/15/cstring \
- /usr/include/string.h /usr/include/strings.h /usr/include/c++/15/fstream \
- /usr/include/c++/15/bits/codecvt.h \
- /usr/include/c++/15/x86_64-redhat-linux/bits/basic_file.h \
- /usr/include/c++/15/x86_64-redhat-linux/bits/c++io.h \
- /usr/include/c++/15/bits/fstream.tcc /usr/include/c++/15/iomanip \
+ /usr/include/c++/15/tr1/riemann_zeta.tcc /usr/include/c++/15/cstring \
+ /usr/include/string.h /usr/include/strings.h /usr/include/c++/15/iomanip \
  /usr/include/c++/15/locale \
  /usr/include/c++/15/bits/locale_facets_nonio.h /usr/include/c++/15/ctime \
  /usr/include/c++/15/x86_64-redhat-linux/bits/time_members.h \
@@ -200,33 +226,7 @@ CMakeFiles/avl_tree.dir/src/tree.cpp.o: \
  /usr/include/c++/15/bits/sstream.tcc /usr/include/c++/15/iterator \
  /usr/include/c++/15/bits/stream_iterator.h /usr/include/c++/15/map \
  /usr/include/c++/15/bits/stl_tree.h /usr/include/c++/15/bits/stl_map.h \
- /usr/include/c++/15/bits/stl_multimap.h /usr/include/c++/15/memory \
- /usr/include/c++/15/bits/stl_raw_storage_iter.h \
- /usr/include/c++/15/bits/align.h /usr/include/c++/15/bits/unique_ptr.h \
- /usr/include/c++/15/bits/shared_ptr.h \
- /usr/include/c++/15/bits/shared_ptr_base.h \
- /usr/include/c++/15/bits/allocated_ptr.h \
- /usr/include/c++/15/ext/concurrence.h \
- /usr/include/c++/15/bits/shared_ptr_atomic.h \
- /usr/include/c++/15/bits/atomic_base.h \
- /usr/include/c++/15/bits/atomic_lockfree_defines.h \
- /usr/include/c++/15/bits/atomic_wait.h /usr/include/c++/15/climits \
- /usr/lib/gcc/x86_64-redhat-linux/15/include/limits.h \
- /usr/lib/gcc/x86_64-redhat-linux/15/include/syslimits.h \
- /usr/include/limits.h /usr/include/bits/posix1_lim.h \
- /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
- /usr/include/bits/posix2_lim.h /usr/include/bits/xopen_lim.h \
- /usr/include/bits/uio_lim.h /usr/include/unistd.h \
- /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
- /usr/include/bits/confname.h /usr/include/bits/getopt_posix.h \
- /usr/include/bits/getopt_core.h /usr/include/bits/unistd_ext.h \
- /usr/include/linux/close_range.h /usr/include/syscall.h \
- /usr/include/sys/syscall.h /usr/include/asm/unistd.h \
- /usr/include/asm/unistd_64.h /usr/include/bits/syscall.h \
- /usr/include/c++/15/bits/std_mutex.h \
- /usr/include/c++/15/backward/auto_ptr.h \
- /usr/include/c++/15/bits/ranges_uninitialized.h \
- /usr/include/c++/15/pstl/glue_memory_defs.h /usr/include/c++/15/numeric \
+ /usr/include/c++/15/bits/stl_multimap.h /usr/include/c++/15/numeric \
  /usr/include/c++/15/bits/stl_numeric.h \
  /usr/include/c++/15/pstl/glue_numeric_defs.h /usr/include/c++/15/set \
  /usr/include/c++/15/bits/stl_set.h \
