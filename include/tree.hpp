@@ -58,7 +58,7 @@ class AVLTree {
         Node<KeyT>* upper_bound(KeyT key);
 
         size_t countBalanceFactor(Node<KeyT>* node);
-        size_t getTreeHeight(Node<KeyT>* node);
+        size_t getTreeHeight(Node<KeyT>* node, size_t depth);
         void performLL(Node<KeyT>* node);
         void performRR(Node<KeyT>* node);
         void performLR(Node<KeyT>* node);
@@ -172,15 +172,36 @@ template<typename KeyT, typename Comp>
 size_t AVLTree<KeyT, Comp>::countBalanceFactor(Node<KeyT>* node) {
     size_t left_height = getTreeHeight(node->left);
     size_t right_height = getTreeHeight(node->right);
+    return left_height - right_height;
 }
 
 template<typename KeyT, typename Comp>
 size_t AVLTree<KeyT, Comp>::getTreeHeight(Node<KeyT>* node, size_t depth) {
     if (node->left) {
-        getTreeHeight(node->left, depth++);
+        // ON_DEBUG(std::cout << "height: going left" << " ");
+        depth = getTreeHeight(node->left.get(), depth+1);
+        // ON_DEBUG(std::cout << "depth = " << depth << "\n");
+    } else if (node->right) {
+        // ON_DEBUG(std::cout << "height: goint right" << " ");
+        depth = getTreeHeight(node->right.get(), depth+1);
+        // ON_DEBUG(std::cout << "depth = " << depth << "\n");
     }
-    if (node->right) {
-        getTreeHeight(node->right, depth++);
-    }
+
+    return depth;
 }
 
+// ==========================================================
+//  This is a rotation functions block
+//  All of the rotations start from the node
+//  where balance_factor > 1 || balance_factor < -1
+//  make sure you use it correctly!
+// ==========================================================
+
+template<typename KeyT, typename Comp>
+void AVLTree<KeyT, Comp>::performLL(Node<KeyT>*node) {
+    Node<KeyT> *new_right = node;
+    Node<KeyT> *new_left  = node->left->left.get();
+    node = node->left.get();
+    node->right.get() = new_right;
+    node->left.get()  = new_left;
+}

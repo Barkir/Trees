@@ -17,7 +17,6 @@ int main() {
     tree.insert(2);
     tree.insert(3);
     tree.insert(25);
-
     tree.dumpTree(tree.getTopNode(), "image");
 
 }
