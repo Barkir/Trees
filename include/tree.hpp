@@ -3,6 +3,8 @@
 #include <memory>
 
 const size_t DEF_SIZE=1024;
+const std::string IMG_DIR = "../images/";
+
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"
 #define RED     "\033[31m"
@@ -55,6 +57,14 @@ class AVLTree {
         Node<KeyT>* lower_bound(KeyT key);
         Node<KeyT>* upper_bound(KeyT key);
 
+        size_t countBalanceFactor(Node<KeyT>* node);
+        size_t getTreeHeight(Node<KeyT>* node);
+        void performLL(Node<KeyT>* node);
+        void performRR(Node<KeyT>* node);
+        void performLR(Node<KeyT>* node);
+        void performRL(Node<KeyT>* node);
+
+
     public: // dump
         void dumpTree(Node<KeyT> *node, std::string filename);
 
@@ -74,10 +84,9 @@ void AVLTree<KeyT, Comp>::insert(KeyT key) {
 
     if (top_node == nullptr) {
         top_node = std::make_unique<Node<KeyT>>(key);
+        return;
     }
     ON_DEBUG(fprintf(stderr, GREEN "inserting key %d...\n" RESET, key));
-
-
     auto new_node = std::make_unique<Node<KeyT>>(key);
     ON_DEBUG(fprintf(stderr, YELLOW "created Node n with adr \t\t%p\n" RESET, new_node.get()));
 
@@ -116,9 +125,16 @@ void AVLTree<KeyT, Comp>::insert(KeyT key) {
     // balance_tree();
 }
 
+std::string refactorFilename(std::string filename) {
+    return IMG_DIR + filename;
+}
+
+
 template <typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::dumpTree(Node<KeyT> *node, std::string filename) {
-    std::ofstream inputFile(filename);
+
+    std::string new_filename = refactorFilename(filename);
+    std::ofstream inputFile(new_filename);
 
     if (!inputFile.is_open()) {
         std::cerr << "error opening file!" << "\n";
@@ -128,7 +144,7 @@ void AVLTree<KeyT, Comp>::dumpTree(Node<KeyT> *node, std::string filename) {
     dumpTreeRecursive(node, inputFile, 0);
     inputFile << "}\n";
 
-    std::string command = "dot " + filename + " -T png -o " + filename + ".png";
+    std::string command = "dot " + new_filename + " -T png -o " + new_filename + ".png";
 
     inputFile.close();
     system(command.c_str());
@@ -152,4 +168,19 @@ void AVLTree<KeyT, Comp>::dumpTreeRecursive(Node<KeyT> *node, std::ofstream& fil
     dumpTreeRecursive(node->right.get(), file, depth+1);
 }
 
+template<typename KeyT, typename Comp>
+size_t AVLTree<KeyT, Comp>::countBalanceFactor(Node<KeyT>* node) {
+    size_t left_height = getTreeHeight(node->left);
+    size_t right_height = getTreeHeight(node->right);
+}
+
+template<typename KeyT, typename Comp>
+size_t AVLTree<KeyT, Comp>::getTreeHeight(Node<KeyT>* node, size_t depth) {
+    if (node->left) {
+        getTreeHeight(node->left, depth++);
+    }
+    if (node->right) {
+        getTreeHeight(node->right, depth++);
+    }
+}
 
