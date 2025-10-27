@@ -57,8 +57,8 @@ class AVLTree {
         Node<KeyT>* lower_bound(KeyT key);
         Node<KeyT>* upper_bound(KeyT key);
 
-        size_t countBalanceFactor(Node<KeyT>* node);
-        size_t getTreeHeight(Node<KeyT>* node, size_t depth);
+        int32_t countBalanceFactor(Node<KeyT>* node);
+        int32_t getTreeHeight(Node<KeyT>* node, size_t depth);
 
         void swapNodes(Node<KeyT>* node1, Node<KeyT>* node2);
         void performLL(Node<KeyT>* node);
@@ -109,10 +109,14 @@ void AVLTree<KeyT, Comp>::insert(KeyT key) {
                 changable->right = std::move(new_node);
 
                 Node<KeyT>* changable_parent = changable->parent;
-                if (changable_parent->right.get() == changable && countBalanceFactor(changable_parent) < -1) {
-                    performRR(changable_parent);
-                } else if (changable_parent->left.get() == changable && countBalanceFactor(changable_parent) < -1) {
-                    performLR(changable_parent);
+                if (changable_parent) {
+                    if (changable_parent->right && changable_parent->right.get() == changable) {
+                        if (countBalanceFactor(changable_parent) < -1)
+                            performRR(changable_parent);
+                    } else if (changable_parent->left && changable_parent->left.get() == changable) {
+                        if (countBalanceFactor(changable_parent) < -1)
+                            performLR(changable_parent);
+                    }
                 }
 
                 break;
@@ -129,10 +133,14 @@ void AVLTree<KeyT, Comp>::insert(KeyT key) {
                 changable->left = std::move(new_node);
 
                 Node<KeyT>* changable_parent = changable->parent;
-                if (changable_parent->left.get() == changable && countBalanceFactor(changable_parent) > 1) {
-                    performLL(changable_parent);
-                } else if (changable_parent->right.get() == changable && countBalanceFactor(changable_parent) > 1) {
-                    performRL(changable_parent);
+                if (changable_parent) {
+                    if (changable_parent->left && changable_parent->left.get() == changable) {
+                        if (countBalanceFactor(changable_parent) > 1)
+                            performLL(changable_parent);
+                    } else if (changable_parent->right && changable_parent->right.get() == changable) {
+                        if (countBalanceFactor(changable_parent) > 1)
+                            performRL(changable_parent);
+                    }
                 }
 
                 break;
@@ -187,14 +195,15 @@ void AVLTree<KeyT, Comp>::dumpTreeRecursive(Node<KeyT> *node, std::ofstream& fil
 }
 
 template<typename KeyT, typename Comp>
-size_t AVLTree<KeyT, Comp>::countBalanceFactor(Node<KeyT>* node) {
-    size_t left_height = getTreeHeight(node->left.get(), 0);
-    size_t right_height = getTreeHeight(node->right.get(), 0);
+int32_t AVLTree<KeyT, Comp>::countBalanceFactor(Node<KeyT>* node) {
+    size_t left_height  = node->left.get()  ? getTreeHeight(node->left.get(), 0)  : 0;
+    size_t right_height = node->right.get() ? getTreeHeight(node->right.get(), 0) : 0;
+    fprintf(stdout, RED "\t counting balance factor of node %p - %d\n" RESET, node, left_height - right_height);
     return left_height - right_height;
 }
 
 template<typename KeyT, typename Comp>
-size_t AVLTree<KeyT, Comp>::getTreeHeight(Node<KeyT>* node, size_t depth) {
+int32_t AVLTree<KeyT, Comp>::getTreeHeight(Node<KeyT>* node, size_t depth) {
     if (node->left) {
         // ON_DEBUG(std::cout << "height: going left" << " ");
         depth = getTreeHeight(node->left.get(), depth+1);
@@ -217,6 +226,7 @@ size_t AVLTree<KeyT, Comp>::getTreeHeight(Node<KeyT>* node, size_t depth) {
 
 template<typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::performLL(Node<KeyT>*node) {
+    fprintf(stdout, YELLOW "performing LL on %p\n" RESET, node);
     Node<KeyT> *new_right = node;
     Node<KeyT> *new_left  = node->left->left.get();
     node = node->left.get();
@@ -226,6 +236,7 @@ void AVLTree<KeyT, Comp>::performLL(Node<KeyT>*node) {
 
 template<typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::performRR(Node<KeyT>* node) {
+    fprintf(stdout, YELLOW "performing RR on %p\n" RESET, node);
     Node<KeyT>* new_left = node;
     Node<KeyT>* new_right = node->right->right.get();
     node = node->right.get();
@@ -235,6 +246,7 @@ void AVLTree<KeyT, Comp>::performRR(Node<KeyT>* node) {
 
 template<typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::performRL(Node<KeyT>* node) {
+    fprintf(stdout, YELLOW "performing RL on %p\n" RESET, node);
     swapNodes(node->right.get(), node->right->left.get());
     node->right->right.reset(node->right->left.get());
     node->right->left.reset(nullptr);
@@ -243,6 +255,7 @@ void AVLTree<KeyT, Comp>::performRL(Node<KeyT>* node) {
 
 template<typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::performLR(Node<KeyT>* node) {
+    fprintf(stdout, YELLOW "performing LR on %p\n" RESET, node);
     swapNodes(node->left.get(), node->left->right.get());
     node->left->right.reset(node->left->left.get());
     node->right->left.reset(nullptr);
