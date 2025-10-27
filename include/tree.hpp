@@ -59,6 +59,8 @@ class AVLTree {
 
         size_t countBalanceFactor(Node<KeyT>* node);
         size_t getTreeHeight(Node<KeyT>* node, size_t depth);
+
+        void swapNodes(Node<KeyT>* node1, Node<KeyT>* node2);
         void performLL(Node<KeyT>* node);
         void performRR(Node<KeyT>* node);
         void performLR(Node<KeyT>* node);
@@ -105,6 +107,14 @@ void AVLTree<KeyT, Comp>::insert(KeyT key) {
 
                 new_node->setParent(changable);
                 changable->right = std::move(new_node);
+
+                Node<KeyT>* changable_parent = changable->parent;
+                if (changable_parent->right.get() == changable && countBalanceFactor(changable_parent) < -1) {
+                    performRR(changable_parent);
+                } else if (changable_parent->left.get() == changable && countBalanceFactor(changable_parent) < -1) {
+                    performLR(changable_parent);
+                }
+
                 break;
             }
         } else {
@@ -117,6 +127,14 @@ void AVLTree<KeyT, Comp>::insert(KeyT key) {
                 ON_DEBUG(fprintf(stderr, BLUE "\t LEFT SUBTREE IS NULL. SETTING IT\n" RESET));
                 new_node->setParent(changable); // use setParent instead
                 changable->left = std::move(new_node);
+
+                Node<KeyT>* changable_parent = changable->parent;
+                if (changable_parent->left.get() == changable && countBalanceFactor(changable_parent) > 1) {
+                    performLL(changable_parent);
+                } else if (changable_parent->right.get() == changable && countBalanceFactor(changable_parent) > 1) {
+                    performRL(changable_parent);
+                }
+
                 break;
             }
         }
@@ -170,8 +188,8 @@ void AVLTree<KeyT, Comp>::dumpTreeRecursive(Node<KeyT> *node, std::ofstream& fil
 
 template<typename KeyT, typename Comp>
 size_t AVLTree<KeyT, Comp>::countBalanceFactor(Node<KeyT>* node) {
-    size_t left_height = getTreeHeight(node->left);
-    size_t right_height = getTreeHeight(node->right);
+    size_t left_height = getTreeHeight(node->left.get(), 0);
+    size_t right_height = getTreeHeight(node->right.get(), 0);
     return left_height - right_height;
 }
 
@@ -202,6 +220,38 @@ void AVLTree<KeyT, Comp>::performLL(Node<KeyT>*node) {
     Node<KeyT> *new_right = node;
     Node<KeyT> *new_left  = node->left->left.get();
     node = node->left.get();
-    node->right.get() = new_right;
-    node->left.get()  = new_left;
+    node->right.reset(new_right);
+    node->left.reset(new_left);
+}
+
+template<typename KeyT, typename Comp>
+void AVLTree<KeyT, Comp>::performRR(Node<KeyT>* node) {
+    Node<KeyT>* new_left = node;
+    Node<KeyT>* new_right = node->right->right.get();
+    node = node->right.get();
+    node->right.reset(new_right);
+    node->left.reset(new_left);
+}
+
+template<typename KeyT, typename Comp>
+void AVLTree<KeyT, Comp>::performRL(Node<KeyT>* node) {
+    swapNodes(node->right.get(), node->right->left.get());
+    node->right->right.reset(node->right->left.get());
+    node->right->left.reset(nullptr);
+    performLL(node);
+}
+
+template<typename KeyT, typename Comp>
+void AVLTree<KeyT, Comp>::performLR(Node<KeyT>* node) {
+    swapNodes(node->left.get(), node->left->right.get());
+    node->left->right.reset(node->left->left.get());
+    node->right->left.reset(nullptr);
+    performRR(node);
+}
+
+template<typename KeyT, typename Comp>
+void AVLTree<KeyT, Comp>::swapNodes(Node<KeyT>* node1, Node<KeyT>* node2) {
+    Node<KeyT>* temp = node1;
+    node1 = node2;
+    node2 = temp;
 }
