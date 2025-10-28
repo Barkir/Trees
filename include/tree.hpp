@@ -5,6 +5,11 @@
 const size_t DEF_SIZE=1024;
 const std::string IMG_DIR = "../images/";
 
+enum RotationMode {
+    LEFT_CHILD,
+    RIGHT_CHILD
+};
+
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"
 #define RED     "\033[31m"
@@ -41,6 +46,13 @@ struct Node {
             parent = node;
         }
 
+        void makeIndependent() {
+            std::cerr << "hello1 " << key_ << "\n";
+            if (left)   left    = (nullptr);
+            if (right)  right   = (nullptr);
+            if (parent) parent  = nullptr;
+        }
+
 };
 
 template <typename KeyT, typename Comp>
@@ -60,6 +72,8 @@ class AVLTree {
         int32_t countBalanceFactor(Node<KeyT>* node);
         int32_t getTreeHeight(Node<KeyT>* node, size_t depth);
 
+        void createChildLink(Node<KeyT>* parent, Node<KeyT>* child, enum RotationMode mode);
+        void balanceNode(Node<KeyT>* node, enum RotationMode mode);
         void swapNodes(Node<KeyT>* node1, Node<KeyT>* node2);
         void performLL(Node<KeyT>* node);
         void performRR(Node<KeyT>* node);
@@ -89,35 +103,22 @@ void AVLTree<KeyT, Comp>::insert(KeyT key) {
         return;
     }
     ON_DEBUG(fprintf(stderr, GREEN "inserting key %d...\n" RESET, key));
-    auto new_node = std::make_unique<Node<KeyT>>(key);
-    ON_DEBUG(fprintf(stderr, YELLOW "created Node n with adr \t\t%p\n" RESET, new_node.get()));
 
     Node<KeyT> *changable = top_node.get();
-    ON_DEBUG(fprintf(stderr, GREEN "starting to insert from top_node \t%p with field %d\n" RESET, top_node.get(), top_node->key_));
+    // ON_DEBUG(fprintf(stderr, GREEN "starting to insert from top_node \t%p with field %d\n" RESET, top_node.get(), top_node->key_));
 
     while (true) {
-        if (comp(new_node->key_, (*changable).key_) > 0) {
+        if (comp(key, changable->key_)) {
             ON_DEBUG(fprintf(stderr, MAGENTA "\t WENT RIGHT COMP CASE\n" RESET));
             if (changable->right) {
                 ON_DEBUG(fprintf(stderr, MAGENTA "\t WENT RIGHT SUBTREE \t %p with field %d\n" RESET, changable->right.get(), changable->right->key_));
                 changable = changable->right.get();
-                new_node->height++;
             } else {
                 ON_DEBUG(fprintf(stderr, MAGENTA "\t RIGHT SUBTREE IS NULL. SETTING IT\n" RESET));
-
-                new_node->setParent(changable);
-                changable->right = std::move(new_node);
-
-                Node<KeyT>* changable_parent = changable->parent;
-                if (changable_parent) {
-                    if (changable_parent->right && changable_parent->right.get() == changable) {
-                        if (countBalanceFactor(changable_parent) < -1)
-                            performRR(changable_parent);
-                    } else if (changable_parent->left && changable_parent->left.get() == changable) {
-                        if (countBalanceFactor(changable_parent) < -1)
-                            performLR(changable_parent);
-                    }
-                }
+                changable->right = std::make_unique<Node<KeyT>>(key);
+                changable->right->setParent(changable);
+                ON_DEBUG(fprintf(stderr, MAGENTA "\t RIGHT SUBTREE IS SET. VALUE=%d\n" RESET, changable->right->key_));
+                balanceNode(changable, RIGHT_CHILD);
 
                 break;
             }
@@ -126,22 +127,12 @@ void AVLTree<KeyT, Comp>::insert(KeyT key) {
             if (changable->left) {
                 ON_DEBUG(fprintf(stderr, BLUE "WENT LEFT SUBTREE \t %p with field %d\n" RESET, changable->left.get(), changable->left->key_));
                 changable = changable->left.get();
-                new_node->height++;
             } else {
                 ON_DEBUG(fprintf(stderr, BLUE "\t LEFT SUBTREE IS NULL. SETTING IT\n" RESET));
-                new_node->setParent(changable); // use setParent instead
-                changable->left = std::move(new_node);
-
-                Node<KeyT>* changable_parent = changable->parent;
-                if (changable_parent) {
-                    if (changable_parent->left && changable_parent->left.get() == changable) {
-                        if (countBalanceFactor(changable_parent) > 1)
-                            performLL(changable_parent);
-                    } else if (changable_parent->right && changable_parent->right.get() == changable) {
-                        if (countBalanceFactor(changable_parent) > 1)
-                            performRL(changable_parent);
-                    }
-                }
+                changable->left = std::make_unique<Node<KeyT>>(key);
+                changable->left->setParent(changable);
+                ON_DEBUG(fprintf(stderr, MAGENTA "\t LEFT SUBTREE IS SET. VALUE=%d\n" RESET, changable->left->key_));
+                balanceNode(changable, LEFT_CHILD);
 
                 break;
             }
@@ -181,17 +172,16 @@ void AVLTree<KeyT, Comp>::dumpTreeRecursive(Node<KeyT> *node, std::ofstream& fil
     if (!node)
         return;
 
-    file << "node" << node << " [shape = Mrecord; label = \"{" << node->key_ << " | adr = " << node << "}\"; style=filled; fillcolor=\"#" << std::hex << node_color << "\"];\n";
+    file << "node" << node << " [shape = Mrecord; label = \"{" << node->key_ << " | adr = " << node << "}\"; style=filled; fillcolor=\"#" << std::hex << node_color << std::dec << "\"];\n";
 
     if (node->left.get()) {
         file << "node" << node << " -> " << "node" << node->left.get() << "\n";
+        dumpTreeRecursive(node->left.get(), file, depth+1);
     }
-
-    if(node->right.get()) {
+    if (node->right.get()) {
         file << "node" << node << " -> " << "node" << node->right.get() << "\n";
+        dumpTreeRecursive(node->right.get(), file, depth+1);
     }
-    dumpTreeRecursive(node->left.get(), file, depth+1);
-    dumpTreeRecursive(node->right.get(), file, depth+1);
 }
 
 template<typename KeyT, typename Comp>
@@ -199,7 +189,7 @@ int32_t AVLTree<KeyT, Comp>::countBalanceFactor(Node<KeyT>* node) {
     size_t left_height  = node->left.get()  ? getTreeHeight(node->left.get(), 0)  : 0;
     size_t right_height = node->right.get() ? getTreeHeight(node->right.get(), 0) : 0;
     fprintf(stdout, RED "\t counting balance factor of node %p - %d\n" RESET, node, left_height - right_height);
-    return left_height - right_height;
+    return (left_height - right_height) + 1;
 }
 
 template<typename KeyT, typename Comp>
@@ -225,41 +215,88 @@ int32_t AVLTree<KeyT, Comp>::getTreeHeight(Node<KeyT>* node, size_t depth) {
 // ==========================================================
 
 template<typename KeyT, typename Comp>
+void AVLTree<KeyT, Comp>::createChildLink(Node<KeyT>* parent, Node<KeyT>* child, enum RotationMode mode) {
+    switch (mode) {
+        case LEFT_CHILD:    parent->left.reset(child);
+                            child->setParent(parent);
+                            break;
+
+        case RIGHT_CHILD:   parent->right.reset(child);
+                            child->setParent(parent);
+                            break;
+    }
+}
+
+template<typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::performLL(Node<KeyT>*node) {
     fprintf(stdout, YELLOW "performing LL on %p\n" RESET, node);
+    Node<KeyT> *parent = node->parent;
+    if (parent) parent->left = nullptr;
+
     Node<KeyT> *new_right = node;
     Node<KeyT> *new_left  = node->left->left.get();
-    node = node->left.get();
-    node->right.reset(new_right);
-    node->left.reset(new_left);
+    Node<KeyT> *new_top   = node->left.get();
+
+    new_top->makeIndependent();
+    new_right->makeIndependent();
+    std::cerr << "hello" << "\n";
+    new_left->makeIndependent();
+
+    createChildLink(new_top, new_right, RIGHT_CHILD);
+    createChildLink(new_top, new_left,  LEFT_CHILD);
+    if (parent) createChildLink(parent, new_top, LEFT_CHILD);
 }
 
 template<typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::performRR(Node<KeyT>* node) {
     fprintf(stdout, YELLOW "performing RR on %p\n" RESET, node);
-    Node<KeyT>* new_left = node;
+
+    Node<KeyT> *parent = node->parent;
+    if (parent) parent->right = nullptr;
+
+    Node<KeyT>* new_left  = node;
     Node<KeyT>* new_right = node->right->right.get();
-    node = node->right.get();
-    node->right.reset(new_right);
-    node->left.reset(new_left);
+    Node<KeyT>* new_top   = node->right.get();
+
+    new_top->makeIndependent();
+    new_right->makeIndependent();
+    new_left->makeIndependent();
+
+    createChildLink(new_top, new_right, RIGHT_CHILD);
+    createChildLink(new_top, new_left,  LEFT_CHILD);
+    if (parent) createChildLink(parent, new_top, RIGHT_CHILD);
 }
 
 template<typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::performRL(Node<KeyT>* node) {
     fprintf(stdout, YELLOW "performing RL on %p\n" RESET, node);
-    swapNodes(node->right.get(), node->right->left.get());
-    node->right->right.reset(node->right->left.get());
-    node->right->left.reset(nullptr);
-    performLL(node);
+
+    Node<KeyT> *swapDown = node->right.get();
+    Node<KeyT> *swapUp   = node->right->left.get();
+
+    swapDown->makeIndependent();
+    swapUp->makeIndependent();
+
+    createChildLink(node, swapUp,     RIGHT_CHILD);
+    createChildLink(swapUp, swapDown, RIGHT_CHILD);
+
+    performRR(node);
 }
 
 template<typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::performLR(Node<KeyT>* node) {
     fprintf(stdout, YELLOW "performing LR on %p\n" RESET, node);
-    swapNodes(node->left.get(), node->left->right.get());
-    node->left->right.reset(node->left->left.get());
-    node->right->left.reset(nullptr);
-    performRR(node);
+
+    Node<KeyT> *swapDown = node->left.get();
+    Node<KeyT> *swapUp   = node->left->right.get();
+
+    swapDown->makeIndependent();
+    swapUp->makeIndependent();
+
+    createChildLink(node, swapUp,     LEFT_CHILD);
+    createChildLink(swapUp, swapDown, LEFT_CHILD);
+
+    performLL(node);
 }
 
 template<typename KeyT, typename Comp>
@@ -267,4 +304,39 @@ void AVLTree<KeyT, Comp>::swapNodes(Node<KeyT>* node1, Node<KeyT>* node2) {
     Node<KeyT>* temp = node1;
     node1 = node2;
     node2 = temp;
+}
+
+template<typename KeyT, typename Comp>
+void AVLTree<KeyT, Comp>::balanceNode(Node<KeyT>* node, enum RotationMode mode) {
+    Node<KeyT> *parent = node->parent;
+
+    if (parent) {
+
+        Node<KeyT>* left = parent->left.get();
+        Node<KeyT>* right = parent->right.get();
+
+        switch (mode)
+        {
+            case LEFT_CHILD:  if (left && left == node) {
+                                    if (countBalanceFactor(parent) > 1) {
+                                        performLL(parent);
+                                    }
+                                } else if (right && right == node) {
+                                    if (countBalanceFactor(parent) > 1) {
+                                        performRL(parent);
+                                    }
+                                }
+                                break;
+            case RIGHT_CHILD: if (right && right == node) {
+                                    if (countBalanceFactor(parent) < -1) {
+                                        performRR(parent);
+                                    }
+                                } else if (left && left == node){
+                                    if (countBalanceFactor(parent) < -1) {
+                                        performLR(parent);
+                                    }
+                                }
+                                break;
+        }
+    }
 }
