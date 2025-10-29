@@ -47,9 +47,8 @@ struct Node {
         }
 
         void makeIndependent() {
-            std::cerr << "hello1 " << key_ << "\n";
-            if (left)   left    = (nullptr);
-            if (right)  right   = (nullptr);
+            if (left)   left.release();
+            if (right)  right.release();
             if (parent) parent  = nullptr;
         }
 
@@ -223,13 +222,14 @@ void AVLTree<KeyT, Comp>::createChildLink(Node<KeyT>* parent, Node<KeyT>* child,
 
         case RIGHT_CHILD:   parent->right.reset(child);
                             child->setParent(parent);
+                            fprintf(stdout, "(%p -> %p && %p <- %p)\n", parent, parent->right.get(), child->parent, child);
                             break;
     }
 }
 
 template<typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::performLL(Node<KeyT>*node) {
-    fprintf(stdout, YELLOW "performing LL on %p\n" RESET, node);
+    fprintf(stdout, YELLOW "performing LL on %p\n", node);
     Node<KeyT> *parent = node->parent;
     if (parent) parent->left = nullptr;
 
@@ -239,10 +239,11 @@ void AVLTree<KeyT, Comp>::performLL(Node<KeyT>*node) {
 
     new_top->makeIndependent();
     new_right->makeIndependent();
-    std::cerr << "hello" << "\n";
     new_left->makeIndependent();
 
     createChildLink(new_top, new_right, RIGHT_CHILD);
+    fprintf(stdout, "%p -> %p && %p <- %p\n" RESET, new_top->right.get(), new_right, new_right->parent, new_top);
+
     createChildLink(new_top, new_left,  LEFT_CHILD);
     if (parent) createChildLink(parent, new_top, LEFT_CHILD);
 }
