@@ -222,7 +222,7 @@ void AVLTree<KeyT, Comp>::createChildLink(Node<KeyT>* parent, Node<KeyT>* child,
 
         case RIGHT_CHILD:   parent->right.reset(child);
                             child->setParent(parent);
-                            fprintf(stdout, "(%p -> %p && %p <- %p)\n", parent, parent->right.get(), child->parent, child);
+                            // fprintf(stdout, "(%p -> %p && %p <- %p)\n", parent, parent->right.get(), child->parent, child);
                             break;
     }
 }
@@ -231,21 +231,32 @@ template<typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::performLL(Node<KeyT>*node) {
     fprintf(stdout, YELLOW "performing LL on %p\n", node);
     Node<KeyT> *parent = node->parent;
-    if (parent) parent->left = nullptr;
+
 
     Node<KeyT> *new_right = node;
     Node<KeyT> *new_left  = node->left->left.get();
-    Node<KeyT> *new_top   = node->left.get();
+    std::unique_ptr<Node<KeyT>> new_top = std::move(node->left);
+    Node<KeyT>* new_top_ptr = new_top.get();
 
-    new_top->makeIndependent();
-    new_right->makeIndependent();
-    new_left->makeIndependent();
+    node->left = std::move(new_top_ptr->right);
+    new_top_ptr->right = std::unique_ptr<Node<KeyT>>(node);
 
-    createChildLink(new_top, new_right, RIGHT_CHILD);
-    fprintf(stdout, "%p -> %p && %p <- %p\n" RESET, new_top->right.get(), new_right, new_right->parent, new_top);
+    new_top_ptr->setParent(node->parent);
+    node->setParent(new_top_ptr);
 
-    createChildLink(new_top, new_left,  LEFT_CHILD);
-    if (parent) createChildLink(parent, new_top, LEFT_CHILD);
+    if (node->left) {
+        node->left->setParent(node);
+    }
+
+    if (new_top_ptr->parent) {
+        if (new_top_ptr->parent->left.get() == node) {
+            new_top_ptr->parent->left = std::move(new_top);
+        } else {
+            new_top_ptr->parent->right = std::move(new_top);
+        }
+    } else {
+        top_node = std::move(new_top);
+    }
 }
 
 template<typename KeyT, typename Comp>
