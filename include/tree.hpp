@@ -10,6 +10,7 @@ enum RotationMode {
     RIGHT_CHILD
 };
 
+
 #define RESET   "\033[0m"
 #define BLACK   "\033[30m"
 #define RED     "\033[31m"
@@ -35,7 +36,7 @@ struct Node {
         std::unique_ptr<Node<KeyT>> left;
         std::unique_ptr<Node<KeyT>> right;
         Node* parent;
-        int height;
+        int32_t height;
         KeyT key_;
 
     public: // constructor
@@ -64,20 +65,21 @@ class AVLTree {
         unsigned int node_color = 0xE0D0FF;
 
     public:
-        void insert(KeyT key);
-        Node<KeyT>* lower_bound(KeyT key);
-        Node<KeyT>* upper_bound(KeyT key);
-
-        int32_t countBalanceFactor(Node<KeyT>* node);
-        int32_t getTreeHeight(Node<KeyT>* node);
-
-
-        void createChildLink(Node<KeyT>* parent, Node<KeyT>* child, enum RotationMode mode);
-        void swapNodes(Node<KeyT>* node1, Node<KeyT>* node2);
-
+        using nodeType = std::unique_ptr<Node<KeyT>>&;
         using pathVec = std::vector<std::unique_ptr<Node<KeyT>>*>;
 
+        void insert(KeyT key);
+        Node<KeyT>* lowerBound(KeyT key); // first not less then key
+        Node<KeyT>* upperBound(KeyT key); // first greater then key
+
+
+
+    public: // helping functions
+        int32_t countBalanceFactor(Node<KeyT>* node);
+        int32_t getTreeHeight(Node<KeyT>* node);
         void printNode(Node<KeyT>* node);
+
+    public: // all about balancing
         void balance(pathVec path);
         void performLL(std::unique_ptr<Node<KeyT>>& node);
         void performRR(std::unique_ptr<Node<KeyT>>& node);
@@ -177,7 +179,7 @@ void AVLTree<KeyT, Comp>::dumpTreeRecursive(Node<KeyT> *node, std::ofstream& fil
     if (!node)
         return;
     fprintf(stdout, YELLOW "\ttop (%p)\n" RESET, node);
-    file << "node" << node << " [shape = Mrecord; label = \"{" << node->key_ << " | adr = " << node << "}\"; style=filled; fillcolor=\"#" << std::hex << node_color << std::dec << "\"];\n";
+    file << "node" << node << " [shape = Mrecord; label = \"{" << node->key_ << " | adr = " << node << " | height =" << node->height <<"}\"; style=filled; fillcolor=\"#" << std::hex << node_color << std::dec << "\"];\n";
 
     if (node->left.get()) {
         fprintf(stdout, MAGENTA "left (%p)\n" RESET, node->left.get());
@@ -239,12 +241,17 @@ void AVLTree<KeyT, Comp>::balance(pathVec path) {
 
             if      (bf_left > 0) { performLL(*node_ptr); }
             else if (bf_left < 0) { performLR(*node_ptr); }
+
         } else if (bf < -1) {
             int bf_right = countBalanceFactor((*node_ptr)->right.get());
 
             if      (bf_right < 0) { performRR(*node_ptr); }
             else if (bf_right > 0) { performRL(*node_ptr); }
         }
+
+        (*node_ptr)->height = getTreeHeight((*node_ptr).get());
+        if ((*node_ptr)->left)  (*node_ptr)->left->height = getTreeHeight((*node_ptr)->left.get());
+        if ((*node_ptr)->right) (*node_ptr)->right->height = getTreeHeight((*node_ptr)->right.get());
     }
 
 }
@@ -355,4 +362,44 @@ void AVLTree<KeyT, Comp>::performLR(std::unique_ptr <Node<KeyT>>& node) {
     node->left = std::move(toSwap);
     node->left->setParent(node.get());
     performLL(node);
+}
+
+template<typename KeyT, typename Comp>
+Node<KeyT>* AVLTree<KeyT, Comp>::lowerBound(KeyT key) {
+    fprintf(stdout, "finding first not less than %d\n", key);
+    Node<KeyT>* current = top_node.get();
+    Node<KeyT>* checker = nullptr;
+
+    while (current) {
+        if (comp(current->key_, key)) {
+            checker = current;
+            current = current->left.get();
+        } else {
+            current = current->right.get();
+        }
+    }
+
+    if (checker) fprintf(stdout, "lowerBound = %d\n", checker->key_);
+    return checker;
+}
+
+
+template<typename KeyT, typename Comp>
+Node<KeyT>* AVLTree<KeyT, Comp>::upperBound(KeyT key) {
+    fprintf(stdout, "finding first greater than %d\n", key);
+
+    Node<KeyT>* current = top_node.get();
+    Node<KeyT>* checker = nullptr;
+
+    while (current) {
+        if (!comp(current->key_, key)) {
+            checker = current;
+            current = current->right.get();
+        } else {
+            current = current->left.get();
+        }
+    }
+
+    if (checker) fprintf(stdout, "upperBound = %d\n", checker->key_);
+    return checker;
 }

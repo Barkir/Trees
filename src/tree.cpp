@@ -1,5 +1,7 @@
 #include <iostream>
 #include <functional>
+#include <string>
+#include <chrono>
 
 #include "tree.hpp"
 #include "CLI11.hpp"
@@ -10,29 +12,38 @@ int compareInt(int a, int b) {
 
 using funcIt = std::function<int(int, int)>;
 
-int main() {
-    AVLTree<int, funcIt> tree(compareInt);
-    tree.insert(50);
-    tree.insert(40);
-    tree.insert(30);
-    tree.insert(60);
-    tree.insert(70);
-    tree.insert(35);
-    tree.insert(37);
-    tree.insert(65);
-    tree.insert(63);
-    tree.insert(10);
-    tree.insert(20);
-    tree.insert(25);
-    tree.insert(55);
-    tree.insert(57);
-    tree.insert(75);
-    tree.insert(80);
-    tree.insert(77);
-    tree.insert(5);
-    tree.insert(15);
-    tree.insert(85);
+std::string generateImgName(const std::string& prefix="image", const std::string& extension="png") {
+    auto now = std::chrono::system_clock::now();
+    auto time_t = std::chrono::system_clock::to_time_t(now);
 
-    tree.dumpTree(tree.getTopNode(), "image");
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&time_t), "%Y-%m-%d_%H-%M-%S");
+    return prefix + "_" + ss.str();
+}
+
+int main(int argc, char** argv) {
+    AVLTree<int, funcIt> tree(compareInt);
+    // CLI::App app {BLUE "avl tre ><><><>" RESET};
+    // argv = app.ensure_utf8(argv);
+    // CLI11_PARSE(app, argc, argv);
+
+    for (int wrd = 0; wrd < argc; ++wrd) {
+        if (!strcmp(argv[wrd], "k")) {
+            int key = std::stoi(argv[wrd+1]);
+            tree.insert(key);
+            wrd++;
+            // fprintf(stdout, "%d\n", key);
+
+        } else if (!strcmp(argv[wrd], "q")) {
+            int lower_bound  = std::stoi(argv[wrd+1]);
+            tree.lowerBound(lower_bound);
+            int upper_bound = std::stoi(argv[wrd+2]);
+            tree.upperBound(upper_bound);
+
+            wrd += 2;
+            // fprintf(stdout, "from %d to %d\n", lower_bound, higher_bound);
+        }
+    }
+    tree.dumpTree(tree.getTopNode(), generateImgName());
 
 }
