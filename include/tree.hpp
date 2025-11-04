@@ -69,7 +69,7 @@ class AVLTree {
         Node<KeyT>* upper_bound(KeyT key);
 
         int32_t countBalanceFactor(Node<KeyT>* node);
-        int32_t getTreeHeight(Node<KeyT>* node, size_t depth);
+        int32_t getTreeHeight(Node<KeyT>* node);
 
 
         void createChildLink(Node<KeyT>* parent, Node<KeyT>* child, enum RotationMode mode);
@@ -77,7 +77,7 @@ class AVLTree {
 
         using pathVec = std::vector<std::unique_ptr<Node<KeyT>>*>;
 
-        void printNode(std::unique_ptr<Node<KeyT>>& node);
+        void printNode(Node<KeyT>* node);
         void balance(pathVec path);
         void performLL(std::unique_ptr<Node<KeyT>>& node);
         void performRR(std::unique_ptr<Node<KeyT>>& node);
@@ -193,25 +193,23 @@ void AVLTree<KeyT, Comp>::dumpTreeRecursive(Node<KeyT> *node, std::ofstream& fil
 
 template<typename KeyT, typename Comp>
 int32_t AVLTree<KeyT, Comp>::countBalanceFactor(Node<KeyT>* node) {
-    size_t left_height  = node->left.get()  ? getTreeHeight(node->left.get(), 0)  : 0;
-    size_t right_height = node->right.get() ? getTreeHeight(node->right.get(), 0) : 0;
-    fprintf(stdout, RED "\t counting balance factor of node %p - %d\n" RESET, node, (left_height - right_height) + 1);
-    return (left_height - right_height) + 1;
+    size_t left_height  = node->left.get()  ? getTreeHeight(node->left.get())  : 0;
+    size_t right_height = node->right.get() ? getTreeHeight(node->right.get()) : 0;
+    fprintf(stdout, RED "\t counting balance factor of node %p - %d\n" RESET, node, (left_height - right_height));
+    return (left_height - right_height);
 }
 
 template<typename KeyT, typename Comp>
-int32_t AVLTree<KeyT, Comp>::getTreeHeight(Node<KeyT>* node, size_t depth) {
-    if (node->left) {
-        // ON_DEBUG(std::cout << "height: going left" << " ");
-        depth = getTreeHeight(node->left.get(), depth+1);
-        // ON_DEBUG(std::cout << "depth = " << depth << "\n");
-    } else if (node->right) {
-        // ON_DEBUG(std::cout << "height: goint right" << " ");
-        depth = getTreeHeight(node->right.get(), depth+1);
-        // ON_DEBUG(std::cout << "depth = " << depth << "\n");
+int32_t AVLTree<KeyT, Comp>::getTreeHeight(Node<KeyT>* node) {
+    if (!node) {
+        return 0;
     }
 
-    return depth;
+    int left_height = getTreeHeight(node->left.get());
+    int right_height = getTreeHeight(node->right.get());
+
+
+    return 1 + std::max(left_height, right_height);
 }
 
 // ==========================================================
@@ -222,11 +220,11 @@ int32_t AVLTree<KeyT, Comp>::getTreeHeight(Node<KeyT>* node, size_t depth) {
 // ==========================================================
 
 template<typename KeyT, typename Comp>
-void AVLTree<KeyT, Comp>::printNode(std::unique_ptr<Node<KeyT>>& node) {
+void AVLTree<KeyT, Comp>::printNode(Node<KeyT>* node) {
     fprintf(stdout, MAGENTA "=========================\n");
-    fprintf(stdout, "dumping node\t%p\n", node.get());
+    fprintf(stdout, "dumping node\t%p\n", node);
     fprintf(stdout, "=========================\n" RESET);
-    fprintf(stdout, RED "\t\ttop(%p)\t<-\t" RESET BLUE "parent(%p)\n" RESET, node.get(), node->parent);
+    fprintf(stdout, RED "\t\ttop(%p)\t<-\t" RESET BLUE "parent(%p)\n" RESET, node, node->parent);
     fprintf(stdout, YELLOW "left(%p)\t\t\tright(%p)\n" RESET, node->left.get(), node->right.get());
 }
 
@@ -268,76 +266,93 @@ void AVLTree<KeyT, Comp>::performLL(std::unique_ptr<Node<KeyT>>& node) {
     // 2. node moves to the top->right
     // 3. node->left->left moves to top->left
 
-    printNode(node);
+    printNode(node.get());
     Node<KeyT>* parent = node->parent;
+
+    bool isLeft = false;
+    if (parent)
+        isLeft = parent->left == node ? true : false;
+
     std::unique_ptr <Node<KeyT>> top = std::move(node->left);
     top->right = std::move(node);
+    top->right->setParent(top.get());
 
     if (parent == nullptr){
         top->setParent(nullptr);
         top_node = std::move(top);
-        printNode(top_node);
-        printNode(top_node->right);
-        printNode(top_node->left);
+        // printNode(top_node.get());
+        // printNode(top_node->right.get());
+        // printNode(top_node->left.get());
     } else {
         top->setParent(parent);
-        printNode(top);
-        printNode(top->right);
-        printNode(top->left);
+
+        if (isLeft) parent->left = std::move(top);
+        else parent->right = std::move(top);
+
+        // printNode(top.get());
+        // printNode(top->right.get());
+        // printNode(top->left.get());
     }
-
-    node->setParent(top.get());
-
 }
 
 template<typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::performRR(std::unique_ptr<Node<KeyT>>& node) {
     fprintf(stdout, YELLOW "performing RR on %p\n" RESET, node.get());
 
-    // Node<KeyT> *parent = node->parent;
-    // if (parent) parent->right = nullptr;
 
-    // Node<KeyT>* new_left  = node;
-    // Node<KeyT>* new_right = node->right->right.get();
-    // Node<KeyT>* new_top   = node->right.get();
+    printNode(node.get());
+    Node<KeyT>* parent = node->parent;
 
-    // new_top->makeIndependent();
-    // new_right->makeIndependent();
-    // new_left->makeIndependent();
+    bool isLeft = false;
+    if (parent)
+        isLeft = parent->left == node ? true : false;
 
-    // createChildLink(new_top, new_right, RIGHT_CHILD);
-    // createChildLink(new_top, new_left,  LEFT_CHILD);
-    // if (parent) createChildLink(parent, new_top, RIGHT_CHILD);
+    fprintf(stdout, "parent=%p\n", node->parent);
+    std::unique_ptr <Node<KeyT>> top = std::move(node->right);
+    top->left = std::move(node);
+    top->left->setParent(top.get());
+
+    if (parent == nullptr){
+        top->setParent(nullptr);
+        top_node = std::move(top);
+
+        // printNode(top_node.get());
+        // printNode(top_node->right.get());
+        // printNode(top_node->left.get());
+    } else {
+        top->setParent(parent);
+
+        if (isLeft) parent->left = std::move(top);
+        else parent->right = std::move(top);
+
+        printNode(parent);
+        // printNode(top.get());
+        // printNode(top->right.get());
+        // printNode(top->left.get());
+    }
 }
 
 template<typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::performRL(std::unique_ptr<Node<KeyT>>& node) {
     fprintf(stdout, YELLOW "performing RL on %p\n" RESET, node.get());
 
-    // Node<KeyT> *swapDown = node->right.get();
-    // Node<KeyT> *swapUp   = node->right->left.get();
+    std::unique_ptr<Node<KeyT>> toSwap = std::move(node->right->left);
+    toSwap->right = std::move(node->right);
+    toSwap->right->setParent(toSwap.get());
+    node->right = std::move(toSwap);
+    node->right->setParent(node.get());
+    performRR(node);
 
-    // swapDown->makeIndependent();
-    // swapUp->makeIndependent();
-
-    // createChildLink(node, swapUp,     RIGHT_CHILD);
-    // createChildLink(swapUp, swapDown, RIGHT_CHILD);
-
-    // performRR(node);
 }
 
 template<typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::performLR(std::unique_ptr <Node<KeyT>>& node) {
     fprintf(stdout, YELLOW "performing LR on %p\n" RESET, node.get());
 
-    // Node<KeyT> *swapDown = node->left.get();
-    // Node<KeyT> *swapUp   = node->left->right.get();
-
-    // swapDown->makeIndependent();
-    // swapUp->makeIndependent();
-
-    // createChildLink(node, swapUp,     LEFT_CHILD);
-    // createChildLink(swapUp, swapDown, LEFT_CHILD);
-
-    // performLL(node);
+    std::unique_ptr<Node<KeyT>> toSwap = std::move(node->left->right);
+    toSwap->left = std::move(node->left);
+    toSwap->left->setParent(toSwap.get());
+    node->left = std::move(toSwap);
+    node->left->setParent(node.get());
+    performLL(node);
 }
