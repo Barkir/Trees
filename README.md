@@ -53,8 +53,13 @@ how to read rotations?
 ### Using graphviz for better debug
 ![image1](./images/sup.png)
 
+command line flag for dumping image:
+```
+./avl_tree --dump
+```
+
 ##### checkpoints
 | # | description| done/undone|
 |---|------------|-----------|
 | 1 |Write LL, LR, RR, RL functions for AVL tree class|     ☑️      |
-| 2 | write CLI for tests            |           |
+| 2 | write CLI for tests            |     ☑️      |

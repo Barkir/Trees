@@ -23,7 +23,7 @@ enum RotationMode {
 #define BOLD    "\033[1m"
 
 
-#define TREE_DEBUG
+// #define TREE_DEBUG
 #ifdef TREE_DEBUG
 #define ON_DEBUG(code) code
 #else
@@ -71,6 +71,9 @@ class AVLTree {
         void insert(KeyT key);
         Node<KeyT>* lowerBound(KeyT key); // first not less then key
         Node<KeyT>* upperBound(KeyT key); // first greater then key
+
+        int32_t orderOfKey(KeyT key);
+        int32_t countRange(KeyT low, KeyT high);
 
 
 
@@ -154,9 +157,9 @@ std::string refactorFilename(std::string filename) {
 template <typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::dumpTree(Node<KeyT> *node, std::string filename) {
 
-    fprintf(stdout, "======================================\n");
-    fprintf(stdout, "dumping tree\t%p\n", node);
-    fprintf(stdout, "======================================\n");
+    ON_DEBUG(fprintf(stdout, "======================================\n"));
+    ON_DEBUG(fprintf(stdout, "dumping tree\t%p\n", node));
+    ON_DEBUG(fprintf(stdout, "======================================\n"));
     std::string new_filename = refactorFilename(filename);
     std::ofstream inputFile(new_filename);
 
@@ -178,16 +181,16 @@ template<typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::dumpTreeRecursive(Node<KeyT> *node, std::ofstream& file, int depth) {
     if (!node)
         return;
-    fprintf(stdout, YELLOW "\ttop (%p)\n" RESET, node);
+    ON_DEBUG(fprintf(stdout, YELLOW "\ttop (%p)\n" RESET, node));
     file << "node" << node << " [shape = Mrecord; label = \"{" << node->key_ << " | adr = " << node << " | height =" << node->height <<"}\"; style=filled; fillcolor=\"#" << std::hex << node_color << std::dec << "\"];\n";
 
     if (node->left.get()) {
-        fprintf(stdout, MAGENTA "left (%p)\n" RESET, node->left.get());
+        ON_DEBUG(fprintf(stdout, MAGENTA "left (%p)\n" RESET, node->left.get()));
         file << "node" << node << " -> " << "node" << node->left.get() << "\n";
         dumpTreeRecursive(node->left.get(), file, depth+1);
     }
     if (node->right.get()) {
-        fprintf(stdout, MAGENTA "\t\tright (%p)\n" RESET, node->right.get());
+        ON_DEBUG(fprintf(stdout, MAGENTA "\t\tright (%p)\n" RESET, node->right.get()));
         file << "node" << node << " -> " << "node" << node->right.get() << "\n";
         dumpTreeRecursive(node->right.get(), file, depth+1);
     }
@@ -197,7 +200,7 @@ template<typename KeyT, typename Comp>
 int32_t AVLTree<KeyT, Comp>::countBalanceFactor(Node<KeyT>* node) {
     size_t left_height  = node->left.get()  ? getTreeHeight(node->left.get())  : 0;
     size_t right_height = node->right.get() ? getTreeHeight(node->right.get()) : 0;
-    fprintf(stdout, RED "\t counting balance factor of node %p - %d\n" RESET, node, (left_height - right_height));
+    ON_DEBUG(fprintf(stdout, RED "\t counting balance factor of node %p - %d\n" RESET, node, (left_height - right_height)));
     return (left_height - right_height);
 }
 
@@ -223,11 +226,11 @@ int32_t AVLTree<KeyT, Comp>::getTreeHeight(Node<KeyT>* node) {
 
 template<typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::printNode(Node<KeyT>* node) {
-    fprintf(stdout, MAGENTA "=========================\n");
-    fprintf(stdout, "dumping node\t%p\n", node);
-    fprintf(stdout, "=========================\n" RESET);
-    fprintf(stdout, RED "\t\ttop(%p)\t<-\t" RESET BLUE "parent(%p)\n" RESET, node, node->parent);
-    fprintf(stdout, YELLOW "left(%p)\t\t\tright(%p)\n" RESET, node->left.get(), node->right.get());
+    ON_DEBUG(fprintf(stdout, MAGENTA "=========================\n"));
+    ON_DEBUG(fprintf(stdout, "dumping node\t%p\n", node));
+    ON_DEBUG(fprintf(stdout, "=========================\n" RESET));
+    ON_DEBUG(fprintf(stdout, RED "\t\ttop(%p)\t<-\t" RESET BLUE "parent(%p)\n" RESET, node, node->parent));
+    ON_DEBUG(fprintf(stdout, YELLOW "left(%p)\t\t\tright(%p)\n" RESET, node->left.get(), node->right.get()));
 }
 
 template<typename KeyT, typename Comp>
@@ -256,6 +259,27 @@ void AVLTree<KeyT, Comp>::balance(pathVec path) {
 
 }
 
+template<typename KeyT, typename Comp>
+int32_t AVLTree<KeyT, Comp>::orderOfKey(KeyT key) {
+    int32_t count = 0;
+    auto node = top_node.get();
+    while (node) {
+        if (!comp(node->key_, key)) {
+            count += (node->left ? node->left->height : 0) + 1;
+            node = node->right.get();
+        } else {
+            node = node->left.get();
+        }
+    }
+
+    return count;
+}
+
+template <typename KeyT, typename Comp>
+int32_t AVLTree<KeyT, Comp>::countRange(KeyT low, KeyT high) {
+    return orderOfKey(high) - orderOfKey(low);
+}
+
 // = = = = = = = = = = = = = = = = = = = = =
 // ┌──────────────────────────────────────┐
 // │         ROTATION ENGINE              │
@@ -267,7 +291,7 @@ void AVLTree<KeyT, Comp>::balance(pathVec path) {
 
 template<typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::performLL(std::unique_ptr<Node<KeyT>>& node) {
-    fprintf(stdout, YELLOW "performing LL on %p\n", node.get());
+    ON_DEBUG(fprintf(stdout, YELLOW "performing LL on %p\n", node.get()));
     // plain algorithm
     // 1. node->left moves to the top
     // 2. node moves to the top->right
@@ -304,7 +328,7 @@ void AVLTree<KeyT, Comp>::performLL(std::unique_ptr<Node<KeyT>>& node) {
 
 template<typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::performRR(std::unique_ptr<Node<KeyT>>& node) {
-    fprintf(stdout, YELLOW "performing RR on %p\n" RESET, node.get());
+    ON_DEBUG(fprintf(stdout, YELLOW "performing RR on %p\n" RESET, node.get()));
 
 
     printNode(node.get());
@@ -314,7 +338,7 @@ void AVLTree<KeyT, Comp>::performRR(std::unique_ptr<Node<KeyT>>& node) {
     if (parent)
         isLeft = parent->left == node ? true : false;
 
-    fprintf(stdout, "parent=%p\n", node->parent);
+    ON_DEBUG(fprintf(stdout, "parent=%p\n", node->parent));
     std::unique_ptr <Node<KeyT>> top = std::move(node->right);
     top->left = std::move(node);
     top->left->setParent(top.get());
@@ -341,7 +365,7 @@ void AVLTree<KeyT, Comp>::performRR(std::unique_ptr<Node<KeyT>>& node) {
 
 template<typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::performRL(std::unique_ptr<Node<KeyT>>& node) {
-    fprintf(stdout, YELLOW "performing RL on %p\n" RESET, node.get());
+    ON_DEBUG(fprintf(stdout, YELLOW "performing RL on %p\n" RESET, node.get()));
 
     std::unique_ptr<Node<KeyT>> toSwap = std::move(node->right->left);
     toSwap->right = std::move(node->right);
@@ -354,7 +378,7 @@ void AVLTree<KeyT, Comp>::performRL(std::unique_ptr<Node<KeyT>>& node) {
 
 template<typename KeyT, typename Comp>
 void AVLTree<KeyT, Comp>::performLR(std::unique_ptr <Node<KeyT>>& node) {
-    fprintf(stdout, YELLOW "performing LR on %p\n" RESET, node.get());
+    ON_DEBUG(fprintf(stdout, YELLOW "performing LR on %p\n" RESET, node.get()));
 
     std::unique_ptr<Node<KeyT>> toSwap = std::move(node->left->right);
     toSwap->left = std::move(node->left);
@@ -366,7 +390,7 @@ void AVLTree<KeyT, Comp>::performLR(std::unique_ptr <Node<KeyT>>& node) {
 
 template<typename KeyT, typename Comp>
 Node<KeyT>* AVLTree<KeyT, Comp>::lowerBound(KeyT key) {
-    fprintf(stdout, "finding first not less than %d\n", key);
+    ON_DEBUG(fprintf(stdout, "finding first not less than %d\n", key));
     Node<KeyT>* current = top_node.get();
     Node<KeyT>* checker = nullptr;
 
@@ -379,14 +403,14 @@ Node<KeyT>* AVLTree<KeyT, Comp>::lowerBound(KeyT key) {
         }
     }
 
-    if (checker) fprintf(stdout, "lowerBound = %d\n", checker->key_);
+    if (checker) ON_DEBUG(fprintf(stdout, "lowerBound = %d\n", checker->key_));
     return checker;
 }
 
 
 template<typename KeyT, typename Comp>
 Node<KeyT>* AVLTree<KeyT, Comp>::upperBound(KeyT key) {
-    fprintf(stdout, "finding first greater than %d\n", key);
+    ON_DEBUG(fprintf(stdout, "finding first greater than %d\n", key));
 
     Node<KeyT>* current = top_node.get();
     Node<KeyT>* checker = nullptr;
@@ -400,6 +424,6 @@ Node<KeyT>* AVLTree<KeyT, Comp>::upperBound(KeyT key) {
         }
     }
 
-    if (checker) fprintf(stdout, "upperBound = %d\n", checker->key_);
+    if (checker) ON_DEBUG(fprintf(stdout, "upperBound = %d\n", checker->key_));
     return checker;
 }

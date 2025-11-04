@@ -36,14 +36,14 @@ int main(int argc, char** argv) {
 
         } else if (!strcmp(argv[wrd], "q")) {
             int lower_bound  = std::stoi(argv[wrd+1]);
-            tree.lowerBound(lower_bound);
             int upper_bound = std::stoi(argv[wrd+2]);
-            tree.upperBound(upper_bound);
+            int32_t range_count = tree.countRange(lower_bound, upper_bound);
 
             wrd += 2;
-            // fprintf(stdout, "from %d to %d\n", lower_bound, higher_bound);
+            fprintf(stdout, "%d ", range_count);
         }
     }
-    tree.dumpTree(tree.getTopNode(), generateImgName());
+    fprintf(stdout, "\n");
+    if (!strcmp(argv[1], "--dump")) tree.dumpTree(tree.getTopNode(), generateImgName());
 
 }
