@@ -23,27 +23,31 @@ std::string generateImgName(const std::string& prefix="image", const std::string
 
 int main(int argc, char** argv) {
     AVLTree<int, funcIt> tree(compareInt);
-    // CLI::App app {BLUE "avl tre ><><><>" RESET};
-    // argv = app.ensure_utf8(argv);
-    // CLI11_PARSE(app, argc, argv);
+    bool dump_flag = false;
 
-    for (int wrd = 0; wrd < argc; ++wrd) {
-        if (!strcmp(argv[wrd], "k")) {
-            int key = std::stoi(argv[wrd+1]);
-            tree.insert(key);
-            wrd++;
-            // fprintf(stdout, "%d\n", key);
-
-        } else if (!strcmp(argv[wrd], "q")) {
-            int lower_bound  = std::stoi(argv[wrd+1]);
-            int upper_bound = std::stoi(argv[wrd+2]);
-            int32_t range_count = tree.countRange(lower_bound, upper_bound);
-
-            wrd += 2;
-            fprintf(stdout, "%d ", range_count);
+    for (int i = 1; i < argc; ++i) {
+        if (!strcmp(argv[i], "--dump")) {
+            dump_flag = true;
         }
     }
-    fprintf(stdout, "\n");
-    if (!strcmp(argv[1], "--dump")) tree.dumpTree(tree.getTopNode(), generateImgName());
 
+    std::string command;
+    while (std::cin >> command) {
+        if (command == "k") {
+            int key = 0;
+            std::cin >> key;
+            tree.insert(key);
+        } else if (command == "q") {
+            int lower_bound, upper_bound;
+            std::cin >> lower_bound >> upper_bound;
+            int32_t range_count = tree.countRange(lower_bound, upper_bound);
+            std::cout << range_count << " ";
+        }
+    }
+
+    std::cout << std::endl;
+
+    if (dump_flag) {
+        tree.dumpTree(tree.getTopNode(), generateImgName());
+    }
 }

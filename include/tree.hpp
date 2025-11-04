@@ -37,6 +37,7 @@ struct Node {
         std::unique_ptr<Node<KeyT>> right;
         Node* parent;
         int32_t height;
+        int32_t subtree_size = 1;
         KeyT key_;
 
     public: // constructor
@@ -74,6 +75,8 @@ class AVLTree {
 
         int32_t orderOfKey(KeyT key);
         int32_t countRange(KeyT low, KeyT high);
+        void updateSize(Node<KeyT>* node);
+
 
 
 
@@ -205,6 +208,15 @@ int32_t AVLTree<KeyT, Comp>::countBalanceFactor(Node<KeyT>* node) {
 }
 
 template<typename KeyT, typename Comp>
+void AVLTree<KeyT, Comp>::updateSize(Node<KeyT>* node) {
+    if (!node) return;
+    size_t left_size = node->left ? node->left->subtree_size : 0;
+    size_t right_size = node->right ? node->right->subtree_size : 0;
+    node->subtree_size = 1 + left_size + right_size;
+
+}
+
+template<typename KeyT, typename Comp>
 int32_t AVLTree<KeyT, Comp>::getTreeHeight(Node<KeyT>* node) {
     if (!node) {
         return 0;
@@ -255,6 +267,9 @@ void AVLTree<KeyT, Comp>::balance(pathVec path) {
         (*node_ptr)->height = getTreeHeight((*node_ptr).get());
         if ((*node_ptr)->left)  (*node_ptr)->left->height = getTreeHeight((*node_ptr)->left.get());
         if ((*node_ptr)->right) (*node_ptr)->right->height = getTreeHeight((*node_ptr)->right.get());
+        updateSize((*node_ptr)->left.get());
+        updateSize((*node_ptr)->right.get());
+        updateSize(node_ptr->get());
     }
 
 }
@@ -265,7 +280,7 @@ int32_t AVLTree<KeyT, Comp>::orderOfKey(KeyT key) {
     auto node = top_node.get();
     while (node) {
         if (!comp(node->key_, key)) {
-            count += (node->left ? node->left->height : 0) + 1;
+            count += (node->left ? node->left->subtree_size : 0) + 1;
             node = node->right.get();
         } else {
             node = node->left.get();
@@ -305,6 +320,11 @@ void AVLTree<KeyT, Comp>::performLL(std::unique_ptr<Node<KeyT>>& node) {
         isLeft = parent->left == node ? true : false;
 
     std::unique_ptr <Node<KeyT>> top = std::move(node->left);
+
+    node->left = std::move(top->right);
+    if (node->left)
+        node->left->setParent(node.get());
+
     top->right = std::move(node);
     top->right->setParent(top.get());
 
@@ -340,8 +360,14 @@ void AVLTree<KeyT, Comp>::performRR(std::unique_ptr<Node<KeyT>>& node) {
 
     ON_DEBUG(fprintf(stdout, "parent=%p\n", node->parent));
     std::unique_ptr <Node<KeyT>> top = std::move(node->right);
+
+    node->right = std::move(top->left);
+    if (node->right)
+        node->right->setParent(node.get());
+
     top->left = std::move(node);
     top->left->setParent(top.get());
+
 
     if (parent == nullptr){
         top->setParent(nullptr);
