@@ -51,10 +51,10 @@ how to read rotations?
 |   RL          |           | occurs when inserting _right_ child into the _left_ subtree making it **right-heavy**              |
 
 ### Using graphviz for better debug
-![image1](./images/out.png)
+![image1](./images/sup.png)
 
 ##### checkpoints
 | # | description| done/undone|
 |---|------------|-----------|
-| 1 |Write LL, LR, RR, RL functions for AVL tree class|           |
+| 1 |Write LL, LR, RR, RL functions for AVL tree class|     ☑️      |
 | 2 | write CLI for tests            |           |
