@@ -292,7 +292,8 @@ int32_t AVLTree<KeyT, Comp>::orderOfKey(KeyT key) {
 
 template <typename KeyT, typename Comp>
 int32_t AVLTree<KeyT, Comp>::countRange(KeyT low, KeyT high) {
-    return orderOfKey(high) - orderOfKey(low);
+    int32_t result = orderOfKey(high) - orderOfKey(low);
+    return result > 0 ? result : 0;
 }
 
 // = = = = = = = = = = = = = = = = = = = = =
