@@ -97,7 +97,7 @@ class AVLTree {
         void dumpTree(Node<KeyT> *node, std::string filename);
 
     public: // constructor
-        AVLTree(Comp InComp) : comp(InComp), top_node(nullptr) {
+        AVLTree(Comp InComp) : top_node(nullptr), comp(InComp) {
 
         }
 
