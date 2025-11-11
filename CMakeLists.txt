@@ -9,14 +9,26 @@ set(COMMON_HEADERS
     include/tree.hpp
 )
 
-add_executable(avl_tree
+add_executable(avl_tree_regular
     src/tree.cpp
 )
-target_include_directories(avl_tree PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+add_executable(avl_tree_timebench
+    src/benchmarks.cpp
+)
+
+target_include_directories(avl_tree_regular PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(avl_tree_timebench PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+
 
 # Настройки компилятора
 if(MSVC)
-    target_compile_options(avl_tree PRIVATE /W4 /permissive-)
+    target_compile_options(avl_tree_regular PRIVATE /W4 /permissive-)
+    target_compile_options(avl_tree_timebench PRIVATE /W4 /permissive-)
+
 else()
-    target_compile_options(avl_tree PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(avl_tree_regular PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(avl_tree_timebench PRIVATE -Wall -Wextra -Wpedantic)
+
 endif()
