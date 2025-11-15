@@ -58,6 +58,19 @@ command line flag for dumping image:
 ./avl_tree --dump
 ```
 
+### Testing
+
+You can test correct answers for `range queries` using `avl_tree_regular` target
+###### Typical usecase (with dump)
+```
+./avl_tree_regular < ../tests/01.dat --dump
+```
+
+You can also test performance using apporpriate targets for that
+There are two benchmarks available
+1. `avl_tree_timebench` - provides time info for custom `AVLTree` implementation
+2. `set_timebench` - provides time info for `std::set` from standard C++ library
+
 ##### checkpoints
 | # | description| done/undone|
 |---|------------|-----------|
