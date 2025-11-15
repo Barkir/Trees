@@ -85,16 +85,16 @@ This is what I use in command line:
 The flame graph I saw in hotspot
 ![img1](./images/perf.png)
 
-<div style="background: linear-gradient(135deg, #ffebee, #ffcdd2, #ef9a9a); border-left: 5px solid #c62828; padding: 12px; margin: 10px 0; font-style: italic; border-radius: 4px; box-shadow: 0 0 8px rgba(198, 40, 40, 0.2); position: relative; overflow: hidden;">
-  <div style="position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(90deg, transparent, #ff5252, transparent); animation: bottleneckFlow 2s linear infinite;"></div>
-  🚨 <strong>Bottleneck:</strong> getTreeHeight
+<div style="border-left: 5px solid #f44336; padding: 10px; margin: 10px 0; background: #fff;">
+  🚨 <strong>Bottleneck:</strong> This function is the performance bottleneck.
 </div>
 
 <style>
 @keyframes bottleneckFlow { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
 </style>
 
-<div style="background: #fff8e1; border-left: 5px solid #ffc107; padding: 12px; margin: 10px 0; font-style: italic; box-shadow: 0 0 8px rgba(255, 193, 7, 0.3); border-radius: 4px; animation: pulse 2s infinite;">
+<div style="border-left: 5px solid #ffc107; padding: 12px; margin: 10px 0; background: #fff
+">
 💡 <strong>Idea:</strong> Contain tree height inside a node.
 </div>
 
