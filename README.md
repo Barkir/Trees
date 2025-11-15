@@ -89,18 +89,10 @@ The flame graph I saw in hotspot
   🚨 <strong>Bottleneck:</strong> This function is the performance bottleneck.
 </div>
 
-<style>
-@keyframes bottleneckFlow { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-</style>
-
 <div style="border-left: 5px solid #ffc107; padding: 12px; margin: 10px 0; background: #fff
 ">
 💡 <strong>Idea:</strong> Contain tree height inside a node.
 </div>
-
-<style>
-@keyframes pulse { from { box-shadow: 0 0 8px rgba(255, 193, 7, 0.3); } to { box-shadow: 0 0 16px rgba(255, 193, 7, 0.6); } }
-</style>
 
 
 ##### checkpoints
