@@ -94,6 +94,35 @@ The flame graph I saw in hotspot
 
 _💁‍♂️ it worked_
 
+This was the code before
+
+<details open>
+
+```cpp
+
+(*node_ptr)->height = getTreeHeight((*node_ptr).get());
+if ((*node_ptr)->left)  (*node_ptr)->left->height = getTreeHeight((*node_ptr)->left.get());
+((*node_ptr)->right) (*node_ptr)->right->height = getTreeHeight((*node_ptr)->right.get());
+```
+</details>
+
+This is what the code after
+
+<details open>
+
+```cpp
+
+updateHeight((*node_ptr).get());
+updateHeight((*node_ptr)->left.get());
+updateHeight((*node_ptr)->right.get());
+
+```
+</details>
+
+Basically I just don't spend time on counting tree height from the top_node every time. Instead, I update it using the heights of node's children, what is obviously faster (because it is not recursive).
+
+----
+
 For testing I will run `test.dat` on 10000 cycles to compare the results before and after.
 
 | Before opt | After opt |
