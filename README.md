@@ -103,6 +103,20 @@ This was the code before
 (*node_ptr)->height = getTreeHeight((*node_ptr).get());
 if ((*node_ptr)->left)  (*node_ptr)->left->height = getTreeHeight((*node_ptr)->left.get());
 if ((*node_ptr)->right) (*node_ptr)->right->height = getTreeHeight((*node_ptr)->right.get());
+
+/// getTreeHeight
+int32_t AVLTree<KeyT, Comp>::getTreeHeight(Node<KeyT>* node) {
+    if (!node) {
+        return 0;
+    }
+
+    int left_height = getTreeHeight(node->left.get());
+    int right_height = getTreeHeight(node->right.get());
+
+
+    return 1 + std::max(left_height, right_height);
+}
+
 ```
 </details>
 
@@ -115,6 +129,14 @@ This is what the code after
 updateHeight((*node_ptr).get());
 updateHeight((*node_ptr)->left.get());
 updateHeight((*node_ptr)->right.get());
+
+/// updateHeight
+void AVLTree<KeyT, Comp>::updateHeight(Node<KeyT>* node) {
+    if (!node) return;
+    size_t left_height = node->left ? node->left->height : 0;
+    size_t right_height = node->right ? node->right->height : 0;
+    node->height = 1 + left_height + right_height;
+}
 
 ```
 </details>
