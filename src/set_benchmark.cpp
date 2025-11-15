@@ -16,16 +16,24 @@ int main(int argc, char** argv) {
     while (std::cin >> command) {
         if (command == "k") {
             int key = 0;
-            std::cin >> key;
             test_set.insert(key);
         } else if (command == "q") {
-            int lower_bound, upper_bound;
-            std::cin >> lower_bound >> upper_bound;
+            int lower_bound = 0;
+            int upper_bound = 0;
 
-            auto lowIt = test_set.lower_bound(lower_bound);
-            auto upIt  = test_set.upper_bound(upper_bound);
-            int32_t distance = std::distance(lowIt, upIt);
-            // std::cout << distance << " ";
+            if (std::cin >> lower_bound >> upper_bound) {
+                auto lowIt = test_set.lower_bound(lower_bound);
+                auto upIt  = test_set.upper_bound(upper_bound);
+                if (lowIt != test_set.end() && upIt != test_set.end())
+                {
+                    if (lower_bound <= upper_bound) {
+                        auto distance = std::distance(lowIt, upIt);
+                    } else {
+                        auto distance = std::distance(upIt, lowIt);
+                    }
+                    // std::cout << distance << "\n";
+                }
+            }
         }
     }
 

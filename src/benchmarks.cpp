@@ -34,8 +34,10 @@ int main(int argc, char** argv) {
 
     std::string command;
 
+    int count = 0;
     auto start = Clock::now();
-    while (std::cin >> command) {
+    while (std::cin >> command && count < 10000) {
+        // std::cout << count << std::endl;
         if (command == "k") {
             int key = 0;
             std::cin >> key;
@@ -43,9 +45,16 @@ int main(int argc, char** argv) {
         } else if (command == "q") {
             int lower_bound, upper_bound;
             std::cin >> lower_bound >> upper_bound;
-            int32_t range_count = tree.countRange(lower_bound, upper_bound);
             // std::cout << range_count << " ";
+            if (lower_bound <= upper_bound) {
+                auto distance = tree.countRange(lower_bound, upper_bound);
+                // std::cout << distance << " ";
+            } else {
+                auto distance = tree.countRange(upper_bound, lower_bound);
+                // std::cout << distance << " ";
+            }
         }
+        ++count;
     }
 
     auto end = Clock::now();
