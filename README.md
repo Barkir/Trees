@@ -102,7 +102,7 @@ This was the code before
 
 (*node_ptr)->height = getTreeHeight((*node_ptr).get());
 if ((*node_ptr)->left)  (*node_ptr)->left->height = getTreeHeight((*node_ptr)->left.get());
-((*node_ptr)->right) (*node_ptr)->right->height = getTreeHeight((*node_ptr)->right.get());
+if ((*node_ptr)->right) (*node_ptr)->right->height = getTreeHeight((*node_ptr)->right.get());
 ```
 </details>
 
