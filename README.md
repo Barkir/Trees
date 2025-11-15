@@ -85,13 +85,11 @@ This is what I use in command line:
 The flame graph I saw in hotspot
 ![img1](./images/perf.png)
 
-<div style="border-left: 5px solid #f44336; padding: 10px; margin: 10px 0; background: #fff;">
-  🚨 <strong>Bottleneck:</strong> This function is the performance bottleneck.
-</div>
+> getTreeHeight is the bottleneck
 
 <div style="border-left: 5px solid #ffc107; padding: 12px; margin: 10px 0; background: #fff
 ">
-💡 <strong>Idea:</strong> Contain tree height inside a node.
+💡 <strong>idea:</strong> contain tree height inside a node.
 </div>
 
 _💁‍♂️ it worked_
