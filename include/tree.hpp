@@ -76,6 +76,7 @@ class AVLTree {
         int32_t orderOfKey(KeyT key);
         int32_t countRange(KeyT low, KeyT high);
         void updateSize(Node<KeyT>* node);
+        void updateHeight(Node<KeyT>* node);
 
 
 
@@ -217,6 +218,14 @@ void AVLTree<KeyT, Comp>::updateSize(Node<KeyT>* node) {
 }
 
 template<typename KeyT, typename Comp>
+void AVLTree<KeyT, Comp>::updateHeight(Node<KeyT>* node) {
+    if (!node) return;
+    size_t left_height = node->left ? node->left->height : 0;
+    size_t right_height = node->right ? node->right->height : 0;
+    node->height = 1 + left_height + right_height;
+}
+
+template<typename KeyT, typename Comp>
 int32_t AVLTree<KeyT, Comp>::getTreeHeight(Node<KeyT>* node) {
     if (!node) {
         return 0;
@@ -264,9 +273,9 @@ void AVLTree<KeyT, Comp>::balance(pathVec path) {
             else if (bf_right > 0) { performRL(*node_ptr); }
         }
 
-        (*node_ptr)->height = getTreeHeight((*node_ptr).get());
-        if ((*node_ptr)->left)  (*node_ptr)->left->height = getTreeHeight((*node_ptr)->left.get());
-        if ((*node_ptr)->right) (*node_ptr)->right->height = getTreeHeight((*node_ptr)->right.get());
+        updateHeight((*node_ptr).get());
+        updateHeight((*node_ptr)->left.get());
+        updateHeight((*node_ptr)->right.get());
         updateSize((*node_ptr)->left.get());
         updateSize((*node_ptr)->right.get());
         updateSize(node_ptr->get());

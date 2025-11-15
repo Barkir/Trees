@@ -94,6 +94,28 @@ The flame graph I saw in hotspot
 💡 <strong>Idea:</strong> Contain tree height inside a node.
 </div>
 
+_💁‍♂️ it worked_
+
+For testing I will run `test.dat` on 10000 cycles to compare the results before and after.
+
+| Before opt | After opt |
+|------------|-----------|
+| 1085028165ns | 371836623ns |
+| 1093385365ns             | 513393055ns |
+| 1156352390ns             | 361827946ns |
+| 1047397737ns             | 504020401ns |
+| 1039771778ns             | 507487802ns |
+| 1044891117ns             | 358567594ns |
+| 1036473995ns             | 523178863ns |
+| 1054563483ns             | 508857641ns |
+
+| Mean Before, s | Mean After, s | SpeedUp, x| SpeedUp, % |
+|-------------|------------|------------|-------|
+| 1.07        | 0.46       | 2.35       | 57.4  |
+
+The optimization gave us more than `x2` to performance.
+
+
 
 ##### checkpoints
 | # | description| done/undone|

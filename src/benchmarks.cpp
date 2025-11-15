@@ -34,9 +34,8 @@ int main(int argc, char** argv) {
 
     std::string command;
 
-    int count = 0;
     auto start = Clock::now();
-    while (std::cin >> command && count < 10000) {
+    while (std::cin >> command) {
         // std::cout << count << std::endl;
         if (command == "k") {
             int key = 0;
@@ -54,7 +53,6 @@ int main(int argc, char** argv) {
                 // std::cout << distance << " ";
             }
         }
-        ++count;
     }
 
     auto end = Clock::now();
