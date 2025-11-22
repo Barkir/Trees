@@ -3,43 +3,31 @@ AVL Tree Implementation
 </div>
 
 
-## Tree Structure
-Here's how **AVL Tree** structure looks like
+### TOC
+- [1. Project description](#descriptipon)
+- [2. Building](#build)
+- [3. Describing rotations](#rotations-for-avl-tree)
+- [4. Graphviz implementation](#graphviz-debugging)
+- [5. Testing](#testing)
+- [6. Dealing with performance](#dealing-with-bad-performance)
 
-<details open>
+## Descriptipon
+This is an AVL tree implementation tested on range queries.
 
-```cpp
-template <typename KeyT, typename Comp>
-class AVLTree {
-    private:
-        std::unique_ptr<Node<KeyT>> top_node;
-        Comp comp;
-        void dumpTreeRecursive(Node<KeyT> *node, std::ofstream& file, int depth=0);
+There is a database of numbers and it is needed to get `n` elements between `[lo:hi]`.
 
-        unsigned int node_color = 0xE0D0FF;
-
-    public:
-        void insert(KeyT key);
-        Node<KeyT>* lower_bound(KeyT key);
-        Node<KeyT>* upper_bound(KeyT key);
-
-    public: // dump
-        void dumpTree(Node<KeyT> *node, std::string filename);
-
-    public: // constructor
-        AVLTree(Comp InComp) : comp(InComp), top_node(nullptr) {
-
-        }
-
-    public:
-        Node<KeyT> *getTopNode() {
-            return top_node.get();
-        }
-};
+## Build
 ```
-</details>
+git clone https://github.com/Barkir/Trees
+cd Trees
+mkdir -p build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+cmake --build .
+```
 
 ### Rotations for AVL Tree
+AVL tree is a type of balanced tree. It is balanced using rotations: `LL`, `LR`, `RL`, `RR`.
 
 how to read rotations?
 - **first** is for the child, **second** is for the subtree
@@ -51,12 +39,15 @@ how to read rotations?
 |   LR          |           | occurs when inserting _left_ child into the _right_ subtree making it **left-heavy**              |
 |   RL          |           | occurs when inserting _right_ child into the _left_ subtree making it **right-heavy**              |
 
-### Using graphviz for better debug
+### Graphviz debugging
+
+It was used to get the process of debugging more comfortable. This tool helped me to handle errors with rotations and unbalanced corner cases.
+
 ![image1](./images/sup.png)
 
 command line flag for dumping image:
 ```
-./avl_tree --dump
+./avl_tree_regular --dump < <file_name>
 ```
 
 ### Testing
