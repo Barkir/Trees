@@ -202,8 +202,8 @@ void AVLTree<KeyT, Comp>::dumpTreeRecursive(Node<KeyT> *node, std::ofstream& fil
 
 template<typename KeyT, typename Comp>
 int32_t AVLTree<KeyT, Comp>::countBalanceFactor(Node<KeyT>* node) {
-    size_t left_height  = node->left.get()  ? getTreeHeight(node->left.get())  : 0;
-    size_t right_height = node->right.get() ? getTreeHeight(node->right.get()) : 0;
+    size_t left_height  = node->left.get()  ? node->left->height  : 0;
+    size_t right_height = node->right.get() ? node->right->height : 0;
     ON_DEBUG(fprintf(stdout, RED "\t counting balance factor of node %p - %d\n" RESET, node, (left_height - right_height)));
     return (left_height - right_height);
 }
@@ -231,7 +231,7 @@ int32_t AVLTree<KeyT, Comp>::getTreeHeight(Node<KeyT>* node) {
         return 0;
     }
 
-    int left_height = getTreeHeight(node->left.get());
+    int left_height  = getTreeHeight(node->left.get());
     int right_height = getTreeHeight(node->right.get());
 
 
